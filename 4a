@@ -1,0 +1,154 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Responsive & Orientation Gallery',
+      theme: ThemeData(
+        primarySwatch: Colors.deepOrange,
+        useMaterial3: true,
+      ),
+      home: const GalleryScreen(),
+    );
+  }
+}
+
+// Dummy Content Model Item
+class GalleryItem {
+  final String title;
+  final String description;
+  final IconData icon;
+  final Color color;
+
+  const GalleryItem({
+    required this.title,
+    required this.description,
+    required this.icon,
+    required this.color,
+  });
+}
+
+class GalleryScreen extends StatelessWidget {
+  const GalleryScreen({super.key});
+
+  // Step-3: Dummy data items for gallery display
+  static const List<GalleryItem> items = [
+    GalleryItem(
+      title: 'Mountain Retreat',
+      description: 'Explore scenic landscapes and peaceful trails.',
+      icon: Icons.landscape,
+      color: Colors.teal,
+    ),
+    GalleryItem(
+      title: 'Urban Explorer',
+      description: 'Discover vibrant cityscapes and modern architectural wonders.',
+      icon: Icons.location_city,
+      color: Colors.indigo,
+    ),
+    GalleryItem(
+      title: 'Ocean Breeze',
+      description: 'Relax with calming waves and sandy shorelines.',
+      icon: Icons.waves,
+      color: Colors.blue,
+    ),
+    GalleryItem(
+      title: 'Forest Sanctuary',
+      description: 'Immerse in nature surrounded by ancient trees and wildlife.',
+      icon: Icons.forest,
+      color: Colors.green,
+    ),
+    GalleryItem(
+      title: 'Desert Safari',
+      description: 'Experience golden dunes and vivid starlit night skies.',
+      icon: Icons.wb_sunny,
+      color: Colors.amber,
+    ),
+    GalleryItem(
+      title: 'Arctic Expedition',
+      description: 'Witness icy glaciers and breath-taking northern lights.',
+      icon: Icons.ac_unit,
+      color: Colors.cyan,
+    ),
+  ];
+
+  // Helper method to determine device classification category
+  String _getDeviceCategory(double width) {
+    if (width < 600) return 'Mobile';
+    if (width < 1024) return 'Tablet';
+    return 'Desktop';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Step-4: Detect total width and orientation using MediaQuery
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final Orientation mediaOrientation = MediaQuery.of(context).orientation;
+    final String category = _getDeviceCategory(screenWidth);
+    final String orientationText =
+        mediaOrientation == Orientation.portrait ? 'Portrait' : 'Landscape';
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Gallery App ($category -$orientationText)'),
+        backgroundColor: Colors.deepOrange,
+        foregroundColor: Colors.white,
+      ),
+      // Step-4: Use LayoutBuilder to determine constraints and layout strategy
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final double maxWidth = constraints.maxWidth;
+
+          if (maxWidth >= 1024) {
+            return _buildDesktopLayout(context, maxWidth);
+          } else if (maxWidth >= 600) {
+            return _buildTabletLayout(context, maxWidth);
+          } else {
+            return _buildMobileLayout(context, maxWidth);
+          }
+        },
+      ),
+      // Step-8: Footer displaying category, screen width, and orientation
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.grey.shade200,
+        elevation: 4,
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'Device: $category  |  Orientation: $orientationText  \vert{}  Width:${screenWidth.toStringAsFixed(1)} px',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade900,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- Step-6: Mobile Layout (< 600px) ---
+  Widget _buildMobileLayout(BuildContext context, double width) {
+    // Step-4/7: OrientationBuilder handles orientation specific changes on Mobile
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        if (orientation == Orientation.portrait) {
+          // Mobile Portrait: Single column list of cards
+          return ListView.builder(
+            padding: const EdgeInsets.all(12.0),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              return _GalleryCard(item: items[index], isHorizontal: false);
+            },
+          );
+        } else {
+          // Mobile Landscape:
